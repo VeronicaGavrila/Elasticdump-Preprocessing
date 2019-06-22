@@ -52,11 +52,11 @@ inputStream.on('open', () => {
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Converting the Authors Array to ElasticDump format (json objects, one-per-line).`);
       let formattedAuthors = '';
 
-      let currentScore = currentLength;
+      let currentOrder = 0;
       uniqueAuthors.forEach((author) => {
         // eslint-disable-next-line no-param-reassign
-        author._score = currentScore;
-        currentScore -= 1;
+        (author._source || {}).order = currentOrder;
+        currentOrder += 1;
         formattedAuthors += `${JSON.stringify(author)}\n`;
       });
 
@@ -79,7 +79,9 @@ inputStream.on('open', () => {
         .replace(/Ţ/g, () => {
           legacyDiacriticsCountT += 1;
           return 'Ț';
-        });
+        })
+        .replace('index-authors', 'authors')
+        .replace('"_score":1,', '');
 
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully replaced ${legacyDiacriticsCountS} "Ş" legacy diacritics.`);
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully replaced ${legacyDiacriticsCountT} "Ţ" legacy diacritics.`);
