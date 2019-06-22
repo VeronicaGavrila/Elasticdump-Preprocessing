@@ -12,7 +12,7 @@ Authors preprocessing (from and to Elasticdump JSON format).
     $ cd authors
     $ npm install
 
-### :wrench: Configure
+## :wrench: Configure
 
 Copy `authors.json` (elasticdump output - json objects, one-per-line) to the authors directory.
 
