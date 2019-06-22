@@ -52,7 +52,11 @@ inputStream.on('open', () => {
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Converting the Authors Array to ElasticDump format (json objects, one-per-line).`);
       let formattedAuthors = '';
 
+      let currentScore = currentLength;
       uniqueAuthors.forEach((author) => {
+        // eslint-disable-next-line no-param-reassign
+        author._score = currentScore;
+        currentScore -= 1;
         formattedAuthors += `${JSON.stringify(author)}\n`;
       });
 
