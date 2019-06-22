@@ -1,0 +1,19 @@
+{
+  "name": "format-authors-elasticdump",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Veronica Gavrilă",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "chalk": "^2.4.2"
+  }
+}
