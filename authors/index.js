@@ -4,6 +4,7 @@ const util = require('util');
 const fs = require('fs');
 const readline = require('readline');
 const chalk = require('chalk');
+const gallerySubtitles = require('./gallery-subtitles.json');
 
 /* Case-Insensitive alphabetical sort filter function. */
 function alphabetize(a, b) {
@@ -15,7 +16,6 @@ function alphabetize(a, b) {
 
 console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a readable stream from ${chalk.gray('authors.json')}.`);
 const inputStream = fs.createReadStream('authors.json');
-const gallerySubtitles = require('./gallery-subtitles.json');
 
 const gallerySubtitlesSet = new Set(Object.keys(gallerySubtitles));
 
@@ -24,7 +24,7 @@ inputStream.on('open', () => {
   const outputStream = fs.createWriteStream('formatted-authors.json', { flags: 'w' });
 
   outputStream.on('open', () => {
-    console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Reading the ElasticDump JSON line-by-line and creating a valid JavaScript Array.`);
+    console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Reading the ElasticDump JSON line-by-line and creating a valid JavaScript array.`);
     const authors = [];
     const lineReader = readline.createInterface({
       input: inputStream,
@@ -36,7 +36,7 @@ inputStream.on('open', () => {
     });
 
     lineReader.on('close', () => {
-      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Sorting alphabetically and eliminating duplicates from the Authors Array.`);
+      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Sorting alphabetically and eliminating duplicates from the authors array.`);
       const previousLength = authors.length;
       const authorDetails = [];
 
@@ -50,10 +50,10 @@ inputStream.on('open', () => {
       }).sort(alphabetize);
 
       const currentLength = uniqueAuthors.length;
-      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} ${previousLength - currentLength} duplicates were removed from the Authors Array.`);
-      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} The Authors Array was successfully sorted alphabetically (${currentLength} authors).`);
+      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} ${previousLength - currentLength} duplicates were removed from the authors array.`);
+      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} The authors array was successfully sorted alphabetically (${currentLength} authors).`);
 
-      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Converting the Authors Array to ElasticDump format (json objects, one-per-line).`);
+      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Converting the authors array to ElasticDump format (json objects, one-per-line).`);
       let formattedAuthors = '';
 
       let currentOrder = 0;
@@ -69,7 +69,7 @@ inputStream.on('open', () => {
         formattedAuthors += `${JSON.stringify(author)}\n`;
       });
       if (gallerySubtitlesSet.size) {
-        console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Gallery Subtitles remaining: ${gallerySubtitlesSet.size} => ${util.inspect(gallerySubtitlesSet, false, null, true)}`);
+        console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Gallery subtitles remaining: ${gallerySubtitlesSet.size} => ${util.inspect(gallerySubtitlesSet, false, null, true)}`);
       } else {
         console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Sucessfully associated all of the gallery subtitles with author images.`);
       }
