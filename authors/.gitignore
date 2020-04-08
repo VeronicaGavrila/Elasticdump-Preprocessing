@@ -3,7 +3,7 @@ node_modules/
 
 #JSON Files
 authors.json
-formattedAuthors.json
+formatted-authors.json
 
 #Package Lock Files
 package-lock.json

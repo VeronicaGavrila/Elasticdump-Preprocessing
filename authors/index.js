@@ -1,5 +1,6 @@
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-underscore-dangle, no-param-reassign, no-console, prefer-destructuring */
 
+const util = require('util');
 const fs = require('fs');
 const readline = require('readline');
 const chalk = require('chalk');
@@ -14,10 +15,13 @@ function alphabetize(a, b) {
 
 console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a readable stream from ${chalk.gray('authors.json')}.`);
 const inputStream = fs.createReadStream('authors.json');
+const gallerySubtitles = require('./gallery-subtitles.json');
+
+const gallerySubtitlesSet = new Set(Object.keys(gallerySubtitles));
 
 inputStream.on('open', () => {
-  console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a writable stream from ${chalk.gray('formattedAuthors.json')}.`);
-  const outputStream = fs.createWriteStream('formattedAuthors.json', { flags: 'w' });
+  console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a writable stream from ${chalk.gray('formatted-authors.json')}.`);
+  const outputStream = fs.createWriteStream('formatted-authors.json', { flags: 'w' });
 
   outputStream.on('open', () => {
     console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Reading the ElasticDump JSON line-by-line and creating a valid JavaScript Array.`);
@@ -54,11 +58,22 @@ inputStream.on('open', () => {
 
       let currentOrder = 0;
       uniqueAuthors.forEach((author) => {
-        // eslint-disable-next-line no-param-reassign
         (author._source || {}).order = currentOrder;
         currentOrder += 1;
+
+        author._source.lastName = author._source.name.split(' ')[0];
+        if (gallerySubtitles[author._source.name]) {
+          author._source.gallerySubtitles = gallerySubtitles[author._source.name];
+          gallerySubtitlesSet.delete(author._source.name);
+        }
         formattedAuthors += `${JSON.stringify(author)}\n`;
       });
+      if (gallerySubtitlesSet.size) {
+        console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Gallery Subtitles remaining: ${gallerySubtitlesSet.size} => ${util.inspect(gallerySubtitlesSet, false, null, true)}`);
+      } else {
+        console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Sucessfully associated all of the gallery subtitles with author images.`);
+      }
+
 
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Replacing legacy romanian diacritics with modern variants.`);
       let legacyDiacriticsCountS = 0;
@@ -86,7 +101,7 @@ inputStream.on('open', () => {
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully replaced ${legacyDiacriticsCountS} "Ş" legacy diacritics.`);
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully replaced ${legacyDiacriticsCountT} "Ţ" legacy diacritics.`);
 
-      console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Writing formatted authors to ${chalk.gray('formattedAuthors.json')}.`);
+      console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Writing formatted authors to ${chalk.gray('formatted-authors.json')}.`);
       outputStream.write(formattedAuthors);
 
       outputStream.end();
@@ -97,7 +112,7 @@ inputStream.on('open', () => {
   });
 
   outputStream.on('error', () => {
-    console.error(`${chalk.red('[ERROR]')}${chalk.magenta('[FILE_SYSTEM]')} The output stream to "formattedAuthors.json" could not be created.`);
+    console.error(`${chalk.red('[ERROR]')}${chalk.magenta('[FILE_SYSTEM]')} The output stream to "formatted-authors.json" could not be created.`);
   });
 });
 
