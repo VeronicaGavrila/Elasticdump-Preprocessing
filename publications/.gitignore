@@ -1,0 +1,9 @@
+# Dependency directories
+node_modules/
+
+#JSON Files
+publications.json
+formatted-publications.json
+
+#Package Lock Files
+package-lock.json
