@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+
+# JSON Files
+authors.json
+publications.json
+
+# Images
+images
+
+# Excel Files
+Missing Image Matches.xlsx
+
+# Package Lock Files
+package-lock.json
