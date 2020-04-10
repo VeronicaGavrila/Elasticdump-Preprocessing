@@ -26,7 +26,7 @@ Reading images from different directories and match the name of the images with 
 
 Copy `authors.json` (elasticdump output - json objects, one-per-line) to the authors directory.
 Copy `publications.json` (elasticdump output - json objects, one-per-line) to the publication directory.
-Copy `authors.json`, `publications.json`  and `images` directory (elasticdump output - json objects, one-per-line) to the image-relationship directory.
+Copy `authors.json`, `publications.json`  and `images` directory to the image-relationship directory.
 
 ## :sparkles: Start
     $ cd authors / publication / image-relationship
