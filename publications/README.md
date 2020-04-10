@@ -1,5 +1,5 @@
-# :books: Authors 
-Publication preprocessing (from and to Elasticdump JSON format).
+# :books: Publications
+Publications preprocessing (from and to Elasticdump JSON format).
 
 ![Publication Preprocessing Example](https://i.imgur.com/7DmFIaa.jpg)
 
