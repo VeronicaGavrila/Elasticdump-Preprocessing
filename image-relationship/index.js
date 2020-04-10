@@ -115,6 +115,30 @@ authorsInputStream.on('open', () => {
       process.exit(1);
     }
 
+
+    const authorMatchesExcelData = [];
+    authorMatches.forEach((element) => {
+      const currentData = {
+        Author: element.author.name,
+        Description: element.author.description,
+        Image: element.image.name,
+        Path: element.image.path,
+      };
+      authorMatchesExcelData.push(currentData);
+    });
+    const fileNameAuthor = 'Author Image Matches.xlsx';
+    const workbookAuthor = XLSX.utils.book_new();
+    const authorImageMatchesWorksheet = XLSX.utils.json_to_sheet(authorMatchesExcelData);
+    authorImageMatchesWorksheet['!cols'] = [
+      { wch: 40 },
+      { wch: 60 },
+      { wch: 60 },
+      { wch: 100 },
+    ];
+    XLSX.utils.book_append_sheet(workbookAuthor, authorImageMatchesWorksheet, 'Publication Image Matches');
+    XLSX.writeFile(workbookAuthor, fileNameAuthor);
+    console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully created the Authors Image Matches document!`);
+
     console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a readable stream from ${chalk.gray('publications.json')}.`);
     const publicationsInputStream = fs.createReadStream('publications.json');
 
@@ -176,6 +200,28 @@ authorsInputStream.on('open', () => {
           process.exit(1);
         }
 
+        const publicationMatchesExcelData = [];
+        publicationMatches.forEach((element) => {
+          const currentData = {
+            Publication: element.publication.name,
+            Image: element.image.name,
+            Path: element.image.path,
+          };
+          publicationMatchesExcelData.push(currentData);
+        });
+        const fileNamePublication = 'Publication Image Matches.xlsx';
+        const workbookPublication = XLSX.utils.book_new();
+        const publicationImageMatchesWorksheet = XLSX.utils.json_to_sheet(publicationMatchesExcelData);
+        publicationImageMatchesWorksheet['!cols'] = [
+          { wch: 60 },
+          { wch: 20 },
+          { wch: 60 },
+          { wch: 60 },
+        ];
+        XLSX.utils.book_append_sheet(workbookPublication, publicationImageMatchesWorksheet, 'Publication Image Matches');
+        XLSX.writeFile(workbookPublication, fileNamePublication);
+        console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully created the Publication Image Matches document!`);
+
         const missingMatches = [];
 
         images.forEach((image) => {
@@ -225,11 +271,12 @@ authorsInputStream.on('open', () => {
         const workbook = XLSX.utils.book_new();
         const missingImageMatchesWorksheet = XLSX.utils.json_to_sheet(missingMatchesExcelData);
         missingImageMatchesWorksheet['!cols'] = [
-          { wch: 80 },
-          { wch: 100 },
+          { wch: 60 },
+          { wch: 60 },
         ];
         XLSX.utils.book_append_sheet(workbook, missingImageMatchesWorksheet, 'Missing Image Matches');
         XLSX.writeFile(workbook, fileName);
+        console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully created the Missing Image Matches document!`);
 
         console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully completed all operations!`);
       });
