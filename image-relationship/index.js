@@ -80,7 +80,7 @@ authorsInputStream.on('open', () => {
     const authorDetails = [];
 
     const uniqueAuthors = authors.filter((author) => {
-      const authorDetail = `${author.name}${author.description}`;
+      const authorDetail = author.name;
       if (!authorDetails.includes(authorDetail)) {
         authorDetails.push(authorDetail);
         return true;
@@ -91,53 +91,6 @@ authorsInputStream.on('open', () => {
     if (authors.length !== uniqueAuthors.length) {
       console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} ${authors.length - uniqueAuthors.length} duplicates were removed from the authors array.`);
     }
-
-    const authorMatches = [];
-    uniqueAuthors.forEach((author) => {
-      images.forEach((image) => {
-        const authorName = replaceDiacritics(author.name).toLowerCase();
-        const imageName = replaceDiacritics(image.name).toLowerCase();
-        if (authorName === imageName) {
-          const match = {
-            author,
-            image,
-          };
-          authorMatches.push(match);
-        }
-      });
-    });
-
-    const authorImagePercent = ((authorMatches.length / images.length) * 100).toFixed(2);
-    if (authorMatches) {
-      console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully found ${authorMatches.length} (${authorImagePercent}%, from a total of ${images.length} images) matches between images and authors.`);
-    } else {
-      console.error(`${chalk.red('[ERROR]')}${chalk.magenta('[PROCESSING]')} No matches were found. Aborting process.`);
-      process.exit(1);
-    }
-
-
-    const authorMatchesExcelData = [];
-    authorMatches.forEach((element) => {
-      const currentData = {
-        Author: element.author.name,
-        Description: element.author.description,
-        Image: element.image.name,
-        Path: element.image.path,
-      };
-      authorMatchesExcelData.push(currentData);
-    });
-    const fileNameAuthor = 'Author Image Matches.xlsx';
-    const workbookAuthor = XLSX.utils.book_new();
-    const authorImageMatchesWorksheet = XLSX.utils.json_to_sheet(authorMatchesExcelData);
-    authorImageMatchesWorksheet['!cols'] = [
-      { wch: 40 },
-      { wch: 60 },
-      { wch: 60 },
-      { wch: 100 },
-    ];
-    XLSX.utils.book_append_sheet(workbookAuthor, authorImageMatchesWorksheet, 'Publication Image Matches');
-    XLSX.writeFile(workbookAuthor, fileNameAuthor);
-    console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully created the Authors Image Matches document!`);
 
     console.info(`${chalk.blue('[INFO]')}${chalk.magenta('[FILE_SYSTEM]')} Creating a readable stream from ${chalk.gray('publications.json')}.`);
     const publicationsInputStream = fs.createReadStream('publications.json');
@@ -163,7 +116,7 @@ authorsInputStream.on('open', () => {
         const publicationDetails = [];
 
         const uniquePublications = publications.filter((publication) => {
-          const publicationDetail = `${publication.name}${publication.description}`;
+          const publicationDetail = publication.name;
           if (!publicationDetails.includes(publicationDetail)) {
             publicationDetails.push(publicationDetail);
             return true;
@@ -175,6 +128,63 @@ authorsInputStream.on('open', () => {
           console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} ${publications.length - uniquePublications.length} duplicates were removed from the publications array.`);
         }
 
+
+        const authorMatches = [];
+        uniqueAuthors.forEach((author) => {
+          images.forEach((image) => {
+            const authorName = replaceDiacritics(author.name).toLowerCase();
+            const imageName = replaceDiacritics(image.name).toLowerCase();
+            if (authorName === imageName) {
+              let isUnique = true;
+              uniquePublications.forEach((publication) => {
+                const publicationName = replaceDiacritics(publication.name).toLowerCase();
+                if (publicationName === authorName) {
+                  isUnique = false;
+                }
+              });
+              if (isUnique) {
+                const match = {
+                  author,
+                  image,
+                };
+                authorMatches.push(match);
+              }
+            }
+          });
+        });
+
+        const authorImagePercent = ((authorMatches.length / images.length) * 100).toFixed(2);
+        if (authorMatches) {
+          console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully found ${authorMatches.length} (${authorImagePercent}%, from a total of ${images.length} images) matches between images and authors.`);
+        } else {
+          console.error(`${chalk.red('[ERROR]')}${chalk.magenta('[PROCESSING]')} No matches were found. Aborting process.`);
+          process.exit(1);
+        }
+
+
+        const authorMatchesExcelData = [];
+        authorMatches.forEach((element) => {
+          const currentData = {
+            Author: element.author.name,
+            Description: element.author.description,
+            Image: element.image.name,
+            Path: element.image.path,
+          };
+          authorMatchesExcelData.push(currentData);
+        });
+        const fileNameAuthor = 'Author Image Matches.xlsx';
+        const workbookAuthor = XLSX.utils.book_new();
+        const authorImageMatchesWorksheet = XLSX.utils.json_to_sheet(authorMatchesExcelData);
+        authorImageMatchesWorksheet['!cols'] = [
+          { wch: 40 },
+          { wch: 60 },
+          { wch: 60 },
+          { wch: 100 },
+        ];
+        XLSX.utils.book_append_sheet(workbookAuthor, authorImageMatchesWorksheet, 'Publication Image Matches');
+        XLSX.writeFile(workbookAuthor, fileNameAuthor);
+        console.info(`${chalk.blue('[INFO]')}${chalk.green('[SUCCESS]')} Successfully created the Authors Image Matches document!`);
+
         const publicationMatches = [];
 
         uniquePublications.forEach((publication) => {
@@ -182,16 +192,24 @@ authorsInputStream.on('open', () => {
             const publicationName = replaceDiacritics(publication.name).toLowerCase();
             const imageName = replaceDiacritics(image.name).toLowerCase();
             if (publicationName === imageName) {
-              const publicationMatch = {
-                publication,
-                image,
-              };
-              publicationMatches.push(publicationMatch);
+              let isUnique = true;
+              authorMatches.forEach((authorMatch) => {
+                const authorName = replaceDiacritics(authorMatch.author.name).toLowerCase();
+                if (publicationName === authorName) {
+                  isUnique = false;
+                }
+              });
+              if (isUnique) {
+                const publicationMatch = {
+                  publication,
+                  image,
+                };
+                publicationMatches.push(publicationMatch);
+              }
             }
           });
         });
 
-        // eslint-disable-next-line max-len
         const publicationImagePercent = ((publicationMatches.length / images.length) * 100).toFixed(2);
         if (publicationMatches) {
           console.info(`${chalk.blue('[INFO]')}${chalk.yellow('[PROCESSING]')} Successfully found ${publicationMatches.length} (${publicationImagePercent}%, from a total of ${images.length} images) matches between images and publications.`);
@@ -243,16 +261,6 @@ authorsInputStream.on('open', () => {
             missingMatches.push(image);
           }
         });
-
-        // uniqueAuthors.forEach(((authorMatch) => {
-        //   uniquePublications.forEach((publicationMatch) => {
-        //     const publicationName = replaceDiacritics(publicationMatch.name).toLowerCase();
-        //     const authorName = replaceDiacritics(authorMatch.name).toLowerCase();
-        //     if (publicationName === authorName) {
-        //       console.log(publicationName);
-        //     }
-        //   });
-        // }));
 
         // eslint-disable-next-line max-len
         const missingMatchPercent = ((missingMatches.length / images.length) * 100).toFixed(2);
